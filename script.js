@@ -1,48 +1,61 @@
-const numeroMaximoIntentos = 5; // Número máximo de intentos permitidos
-let numeroAleatorio = generarNumeroAleatorio(); // Generar un nuevo número aleatorio
+const numeroAleatorio = generarNumeroAleatorio();
 let intentos = 0;
+const maxIntentos = 10;
+const intentosAnteriores = [];
 
 const numeroInput = document.getElementById("numeroInput");
 const adivinarBtn = document.getElementById("adivinarBtn");
-const mensaje = document.getElementById("mensaje");
 const reiniciarBtn = document.getElementById("reiniciarBtn");
+const mensaje = document.getElementById("mensaje");
+const intentosAnterioresContainer = document.getElementById("intentosAnteriores");
 
-// Función para generar un nuevo número aleatorio
+adivinarBtn.addEventListener("click", function () {
+  const numeroJugador = parseInt(numeroInput.value);
+  
+  if (isNaN(numeroJugador) || numeroJugador < 1 || numeroJugador > 100) {
+    mensaje.textContent = "Ingresa un número válido entre 1 y 100.";
+    return;
+  }
+
+  intentos++;
+  intentosAnteriores.push(numeroJugador);
+
+  if (numeroJugador === numeroAleatorio) {
+    mensaje.textContent = `¡Felicidades! Adivinaste el número en ${intentos} intentos.`;
+    adivinarBtn.disabled = true;
+    reiniciarBtn.disabled = false;
+  } else if (intentos === maxIntentos) {
+    mensaje.textContent = `Se han agotado los intentos. El número era ${numeroAleatorio}.`;
+    adivinarBtn.disabled = true;
+    reiniciarBtn.disabled = false;
+  } else if (numeroJugador < numeroAleatorio) {
+    mensaje.textContent = "Demasiado bajo. Intenta nuevamente.";
+  } else {
+    mensaje.textContent = "Demasiado alto. Intenta nuevamente.";
+  }
+
+  mostrarIntentosAnteriores();
+});
+
+reiniciarBtn.addEventListener("click", function () {
+  reiniciarJuego();
+});
+
 function generarNumeroAleatorio() {
   return Math.floor(Math.random() * 100) + 1;
 }
 
-// Función para reiniciar el juego
 function reiniciarJuego() {
-  intentos = 0;
   numeroAleatorio = generarNumeroAleatorio();
+  intentos = 0;
+  intentosAnteriores.length = 0;
   mensaje.textContent = "";
+  intentosAnterioresContainer.textContent = "";
   numeroInput.value = "";
   adivinarBtn.disabled = false;
   reiniciarBtn.disabled = true;
 }
 
-// Evento de clic en el botón "Adivinar"
-adivinarBtn.addEventListener("click", function () {
-  const numeroJugador = parseInt(numeroInput.value);
-  intentos++;
-
-  if (numeroJugador < numeroAleatorio) {
-    mensaje.textContent = "Demasiado bajo. Intenta nuevamente.";
-  } else if (numeroJugador > numeroAleatorio) {
-    mensaje.textContent = "Demasiado alto. Intenta nuevamente.";
-  } else {
-    mensaje.textContent = `¡Felicidades! Adivinaste el número en ${intentos} intentos.`;
-    adivinarBtn.disabled = true;
-    reiniciarBtn.disabled = false;
-  }
-
-  if (intentos >= numeroMaximoIntentos) {
-    mensaje.textContent = `Agotaste tus intentos. El número era ${numeroAleatorio}.`;
-    adivinarBtn.disabled = true;
-    reiniciarBtn.disabled = false;
-  }
-});
-
-// Evento de clic en el botón "Reiniciar"
-reiniciarBtn.addEventListener("click", reiniciarJuego);
+function mostrarIntentosAnteriores() {
+  intentosAnterioresContainer.textContent = "Intentos anteriores: " + intentosAnteriores.join(", ");
+}
